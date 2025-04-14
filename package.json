@@ -2,17 +2,25 @@
   "name": "joezik",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "init-db": "node --experimental-specifier-resolution=node scripts/init-db.js",
+    "migrate": "node --experimental-specifier-resolution=node -e \"import('./src/lib/storage/storageAdapter.js').then(m => m.migrateToSQLite())\"",
+    "create-default-playlist": "node --experimental-specifier-resolution=node scripts/create-default-playlist.js"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/uuid": "^10.0.0",
+    "better-sqlite3": "^11.9.1",
     "bootstrap": "^5.3.5",
+    "drizzle-orm": "^0.41.0",
     "next": "15.3.0",
+    "node-fetch": "^3.3.2",
     "pusher-js": "^8.4.0",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ListGroup, Button, Badge } from 'react-bootstrap';
-import { FaThumbsUp, FaThumbsDown, FaPlay, FaCheck } from 'react-icons/fa';
+import { FaThumbsUp, FaThumbsDown, FaPlay, FaCheck, FaTrash } from 'react-icons/fa';
 import { Track, hasUserVotedForTrack } from '@/lib/playlist/trackService';
 
 interface TrackQueueProps {
@@ -9,6 +9,7 @@ interface TrackQueueProps {
   onTrackSelect: (trackId: string) => void;
   onVoteUp: (trackId: string) => void;
   onVoteDown: (trackId: string) => void;
+  onDeleteTrack?: (trackId: string) => void;
   currentUserId?: string | null;
 }
 
@@ -18,6 +19,7 @@ const TrackQueue: React.FC<TrackQueueProps> = ({
   onTrackSelect,
   onVoteUp,
   onVoteDown,
+  onDeleteTrack,
   currentUserId
 }) => {
   // Format time from seconds to MM:SS
@@ -25,11 +27,10 @@ const TrackQueue: React.FC<TrackQueueProps> = ({
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-  };
-
-  return (
-    <div className="jz-queue p-2">
-      <div className="d-flex justify-content-between align-items-center mb-3 px-2">
+  }
+  return ( 
+    <div className="jz-queue p-2"> 
+      <div className="d-flex justify-content-between align-items-center mb-5 px-2">
         <h5 className="mb-0">File d&apos;attente</h5>
         <Badge bg="primary" pill>{tracks.length}</Badge>
       </div>
@@ -99,6 +100,18 @@ const TrackQueue: React.FC<TrackQueueProps> = ({
                     onClick={() => onTrackSelect(track.id)}
                   >
                     <FaPlay />
+                  </Button>
+                )}
+                
+                {/* Bouton de suppression - visible uniquement pour l'utilisateur qui a ajouté la piste */}
+                {currentUserId && track.addedById === currentUserId && onDeleteTrack && (
+                  <Button 
+                    variant="link" 
+                    className="text-danger p-1 ms-2" 
+                    onClick={() => onDeleteTrack(track.id)}
+                    title="Supprimer cette piste"
+                  >
+                    <FaTrash />
                   </Button>
                 )}
               </div>
