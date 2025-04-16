@@ -30,7 +30,7 @@ const TrackQueue: React.FC<TrackQueueProps> = ({
   }
   return ( 
     <div className="jz-queue p-2"> 
-      <div className="d-flex justify-content-between align-items-center mb-5 px-2">
+      <div className="d-flex justify-content-between align-items-center mb-3 px-2">
         <h5 className="mb-0">File d&apos;attente</h5>
         <Badge bg="primary" pill>{tracks.length}</Badge>
       </div>

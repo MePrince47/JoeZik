@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, ProgressBar, Button } from 'react-bootstrap';
-import { FaPlay, FaPause, FaStepForward, FaStepBackward, FaVolumeUp, FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
+import { FaPlay, FaPause, FaStepForward, FaStepBackward, FaVolumeUp, FaThumbsUp, FaThumbsDown, FaForward, FaBackward } from 'react-icons/fa';
 import YouTubePlayer from './YouTubePlayer';
-import AudioPlayer from './AudioPlayer';
+import AudioPlayer, { AudioPlayerRef } from './AudioPlayer';
 
 interface Track {
   id: string;

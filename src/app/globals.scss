@@ -159,3 +159,8 @@ a {
 .bg-darker {
   background-color: var(--jz-bg-darker) !important;
 }
+
+// Import custom styles
+// Suppression de l'import circulaire
+@import '../styles/custom/local-music.scss';
+@import '../styles/custom/apple-music-theme.scss';

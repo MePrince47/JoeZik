@@ -7,6 +7,7 @@ import TrackQueue from '@/components/playlist/TrackQueue';
 import UsersChat from '@/components/realtime/UsersChat';
 import AddTrackForm from '@/components/playlist/AddTrackForm';
 import AuthForm from '@/components/auth/AuthForm';
+import LocalMusicSection from '@/components/playlist/LocalMusicSection';
 // Types
 import { UserProfile } from '@/types/user';
 import { Track } from '@/lib/playlist/trackService';
@@ -336,7 +337,78 @@ export default function Home() {
     }
   };
 
-  // La fonction handleAddUploadTrack a été supprimée car l'upload local n'est plus supporté
+  // Fonction pour ajouter un fichier audio local
+  const handleAddLocalTrack = async (file: File, isLocalOnly: boolean = false) => {
+    if (!trackService || !fileService) return;
+    
+    console.log('Adding local track:', file.name, isLocalOnly ? '(local only)' : '');
+    setIsAddingTrack(true);
+    
+    try {
+      if (!currentUser) {
+        setShowLoginModal(true);
+        return;
+      }
+      
+      // Uploader le fichier audio
+      const audioFile = await fileService.saveAudioFile(file, currentUser.id);
+      
+      if (!audioFile) {
+        console.error('Erreur lors de l\'upload du fichier audio');
+        alert('Erreur lors de l\'upload du fichier audio. Veuillez réessayer.');
+        return;
+      }
+      
+      // Extraire le titre et l'artiste du nom du fichier
+      let title = file.name;
+      let artist = 'Artiste inconnu';
+      
+      // Si le nom du fichier contient un tiret, on considère que c'est "Artiste - Titre"
+      const parts = file.name.split(' - ');
+      if (parts.length > 1) {
+        artist = parts[0].trim();
+        title = parts.slice(1).join(' - ').trim();
+        
+        // Enlever l'extension du titre
+        const titleParts = title.split('.');
+        if (titleParts.length > 1) {
+          titleParts.pop();
+          title = titleParts.join('.');
+        }
+      }
+      
+      // Ajouter la piste uploadée à la playlist
+      const newTrack = await trackService.addUploadTrack(
+        DEFAULT_PLAYLIST_ID,
+        title,
+        artist,
+        audioFile.id,
+        currentUser.id,
+        currentUser.username,
+        isLocalOnly
+      );
+      
+      if (!newTrack) {
+        console.error('Erreur lors de l\'ajout de la piste uploadée');
+        alert('Erreur lors de l\'ajout de la piste. Veuillez réessayer.');
+        return;
+      }
+      
+      // Mettre à jour les pistes
+      const updatedTracks = await trackService.getPlaylistTracks(DEFAULT_PLAYLIST_ID);
+      setTracks(updatedTracks);
+      
+      // Si c'est la première piste et qu'aucune n'est en cours de lecture, la sélectionner
+      if (!currentTrackId) {
+        setCurrentTrackId(newTrack.id);
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout de la piste locale:', error);
+      alert('Une erreur est survenue lors de l\'ajout de la piste. Veuillez réessayer.');
+    } finally {
+      setIsAddingTrack(false);
+    }
+  };
 
   const handlePlayerReady = () => {
     console.log('Player is ready');
@@ -445,9 +517,9 @@ export default function Home() {
         />
       </div>
       
-      <div className="jz-content-modern">
+      <div className="jz-content-modern ">
         <div className="jz-queue-modern">
-          <div className="queue-header d-flex justify-content-between align-items-center mb-3">
+          <div className="queue-header d-flex justify-content-between align-items-center mt-5 mb-3">
             <div>
               <h5 className="mb-0">File d&apos;attente</h5>
               <span className="badge">{tracks.length}</span>
@@ -475,6 +547,7 @@ export default function Home() {
           <div className="add-track-container">
             <AddTrackForm 
               onAddYouTubeTrack={handleAddYouTubeTrack}
+              onAddLocalTrack={handleAddLocalTrack}
               isSubmitting={isAddingTrack}
               isAuthenticated={isAuthenticated}
               onLoginRequired={() => setShowLoginModal(true)}
@@ -518,6 +591,16 @@ export default function Home() {
         </div>
         
         <div className="jz-users-chat-modern">
+          {/* Section de musiques locales */}
+          <div className="local-music-section-container mb-4">
+            <LocalMusicSection 
+              tracks={tracks}
+              currentUser={currentUser}
+              onDeleteTrack={handleDeleteTrack}
+            />
+          </div>
+          
+          {/* Chat utilisateurs */}
           <UsersChat 
             currentUser={currentUser}
             onlineUsers={onlineUsers}

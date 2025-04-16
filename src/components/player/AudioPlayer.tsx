@@ -1,4 +1,11 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from 'react';
+
+export interface AudioPlayerRef {
+  seekTo: (position: number) => void;
+  skipForward: (seconds: number) => void;
+  skipBackward: (seconds: number) => void;
+  getDuration: () => number;
+}
 
 interface AudioPlayerProps {
   audioUrl: string;
@@ -8,17 +15,21 @@ interface AudioPlayerProps {
   onReady: () => void;
   onError?: () => void;
   volume: number;
+  onSeek?: (position: number) => void;
 }
 
-const AudioPlayer: React.FC<AudioPlayerProps> = ({
-  audioUrl,
-  isPlaying,
-  onStateChange,
-  onProgress,
-  onReady,
-  onError,
-  volume
-}) => {
+const AudioPlayer = forwardRef<AudioPlayerRef, AudioPlayerProps>(function AudioPlayer(props, ref) {
+  const { 
+    audioUrl, 
+    isPlaying, 
+    onStateChange, 
+    onProgress, 
+    onReady, 
+    onError, 
+    volume,
+    onSeek
+  } = props;
+  
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -101,7 +112,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
         clearInterval(progressIntervalRef.current);
       }
     };
-  }, [audioUrl, onReady, onStateChange]);
+  }, [audioUrl, onReady, onStateChange, onError, getFullAudioUrl]);
 
   // Gérer les changements d'URL audio
   useEffect(() => {
@@ -128,7 +139,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
         }
       }
     }
-  }, [audioUrl, isPlaying, getFullAudioUrl]);
+  }, [audioUrl, isPlaying, getFullAudioUrl, onError]);
 
   // Gérer les changements de lecture/pause
   useEffect(() => {
@@ -163,7 +174,7 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
         }
       }
     }
-  }, [isPlaying, onProgress]);
+  }, [isPlaying, onProgress, onError]);
 
   // Gérer les changements de volume
   useEffect(() => {
@@ -172,7 +183,43 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({
     }
   }, [volume]);
 
+  // Exposer les méthodes de contrôle via la référence
+  useImperativeHandle(ref, () => ({
+    seekTo: (position: number) => {
+      if (audioRef.current) {
+        const newTime = position * audioRef.current.duration;
+        audioRef.current.currentTime = newTime;
+        if (onSeek) {
+          onSeek(position);
+        }
+      }
+    },
+    skipForward: (seconds: number) => {
+      if (audioRef.current) {
+        const newTime = Math.min(audioRef.current.currentTime + seconds, audioRef.current.duration);
+        audioRef.current.currentTime = newTime;
+        const newPosition = newTime / audioRef.current.duration;
+        if (onSeek) {
+          onSeek(newPosition);
+        }
+      }
+    },
+    skipBackward: (seconds: number) => {
+      if (audioRef.current) {
+        const newTime = Math.max(audioRef.current.currentTime - seconds, 0);
+        audioRef.current.currentTime = newTime;
+        const newPosition = newTime / audioRef.current.duration;
+        if (onSeek) {
+          onSeek(newPosition);
+        }
+      }
+    },
+    getDuration: () => {
+      return audioRef.current ? audioRef.current.duration : 0;
+    }
+  }));
+
   return null; // Ce composant ne rend rien visuellement
-};
+});
 
 export default AudioPlayer;

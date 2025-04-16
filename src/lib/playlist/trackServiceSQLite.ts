@@ -170,7 +170,8 @@ export const addUploadTrack = async (
   artist: string,
   audioFileId: string,
   userId: string,
-  username: string
+  username: string,
+  isLocalOnly: boolean = false
 ): Promise<Track | null> => {
   try {
     // Récupérer les métadonnées du fichier audio
@@ -182,6 +183,40 @@ export const addUploadTrack = async (
     
     const audioFile = await audioFileResponse.json();
     
+    // Générer une image de couverture basée sur le titre et l'artiste
+    // Utiliser une API de placeholder d'image avec le texte du titre
+    const encodedTitle = encodeURIComponent(`${title} - ${artist}`);
+    const coverUrl = `https://via.placeholder.com/400x400/212529/FFFFFF?text=${encodedTitle}`;
+    
+    // Estimer la durée en fonction du type et de la taille du fichier
+    // C'est une estimation grossière, mais meilleure qu'une valeur fixe
+    let estimatedDuration = 180; // Valeur par défaut (3 minutes)
+    
+    // Si nous avons la taille du fichier, faire une estimation basée sur le débit moyen
+    if (audioFile.size) {
+      // Estimer en fonction du type de fichier et de la taille
+      // MP3: ~128kbps = 16KB/s, donc durée ≈ taille / 16000
+      if (audioFile.type && audioFile.type.includes('mp3')) {
+        estimatedDuration = Math.round(audioFile.size / 16000);
+      } 
+      // OGG/FLAC: ~256kbps = 32KB/s
+      else if (audioFile.type && (audioFile.type.includes('ogg') || audioFile.type.includes('flac'))) {
+        estimatedDuration = Math.round(audioFile.size / 32000);
+      }
+      // WAV: ~1411kbps = 176KB/s (non compressé)
+      else if (audioFile.type && audioFile.type.includes('wav')) {
+        estimatedDuration = Math.round(audioFile.size / 176000);
+      }
+      // Autres formats: estimation générique
+      else {
+        estimatedDuration = Math.round(audioFile.size / 20000);
+      }
+      
+      // Limites raisonnables
+      if (estimatedDuration < 30) estimatedDuration = 30; // Minimum 30 secondes
+      if (estimatedDuration > 600) estimatedDuration = 600; // Maximum 10 minutes
+    }
+    
     const response = await fetch('/api/tracks', {
       method: 'POST',
       headers: {
@@ -190,13 +225,14 @@ export const addUploadTrack = async (
       body: JSON.stringify({
         title,
         artist,
-        coverUrl: 'https://i.scdn.co/image/ab67616d0000b273b04da49dd710937f6a57f23c', // Image par défaut
-        duration: 180, // Durée par défaut
+        coverUrl: coverUrl,
+        duration: estimatedDuration,
         source: 'upload',
         sourceUrl: audioFile.filePath,
         playlistId,
         addedById: userId,
-        addedBy: username
+        addedBy: username,
+        isLocalOnly
       })
     });
     

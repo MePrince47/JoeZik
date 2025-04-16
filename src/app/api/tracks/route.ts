@@ -43,6 +43,7 @@ export async function GET(request: NextRequest) {
 // POST /api/tracks - Créer une nouvelle piste
 export async function POST(request: NextRequest) {
   try {
+    const requestData = await request.json();
     const {
       title,
       artist,
@@ -52,8 +53,9 @@ export async function POST(request: NextRequest) {
       sourceUrl,
       playlistId,
       addedById,
-      addedBy
-    } = await request.json();
+      addedBy,
+      isLocalOnly = false
+    } = requestData;
     
     // Vérifier si tous les champs requis sont fournis
     if (!title || !artist || !coverUrl || !duration || !source || !sourceUrl || !playlistId || !addedById || !addedBy) {
@@ -76,7 +78,8 @@ export async function POST(request: NextRequest) {
       addedById,
       addedBy,
       voteScore: 0,
-      addedAt: new Date().toISOString()
+      addedAt: new Date().toISOString(),
+      isLocalOnly
     };
     
     // Insérer la piste dans la base de données

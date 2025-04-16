@@ -35,7 +35,8 @@ export const tracks = sqliteTable('tracks', {
   addedById: text('added_by_id').notNull().references(() => users.id),
   addedBy: text('added_by').notNull(),
   voteScore: integer('vote_score').notNull().default(0),
-  addedAt: text('added_at').notNull()
+  addedAt: text('added_at').notNull(),
+  isLocalOnly: integer('is_local_only', { mode: 'boolean' }).notNull().default(false)
 });
 
 export const trackVotes = sqliteTable('track_votes', {

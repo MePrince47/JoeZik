@@ -21,6 +21,7 @@ export interface Track {
   voteScore: number;
   votedBy: string[]; // IDs des utilisateurs qui ont voté
   addedAt: string;
+  isLocalOnly?: boolean; // Indique si la piste est uniquement pour la section locale
 }
 
 // Interface pour les playlists
@@ -160,7 +161,8 @@ export const addUploadTrack = (
   artist: string,
   audioFileId: string,
   userId: string,
-  username: string
+  username: string,
+  isLocalOnly: boolean = false
 ): Track | null => {
   // Récupérer les métadonnées du fichier audio
   const audioFile = getAudioFileMetadataById(audioFileId);
@@ -181,7 +183,8 @@ export const addUploadTrack = (
     addedBy: username,
     voteScore: 0,
     votedBy: [],
-    addedAt: new Date().toISOString()
+    addedAt: new Date().toISOString(),
+    isLocalOnly
   };
   
   const tracks = getTracks();
