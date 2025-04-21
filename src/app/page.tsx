@@ -66,7 +66,7 @@ async function getYouTubeVideoInfo(videoId: string): Promise<{title: string, art
     // Sinon, retournez des données génériques
     return {
       title: `YouTube Video (${videoId})`,
-      artist: 'Unknown Artist',
+      artist: 'Your Artist',
       thumbnailUrl: `https://img.youtube.com/vi/${videoId}/0.jpg`,
       duration: 240
     };
@@ -566,29 +566,61 @@ export default function Home() {
             />
           </div>
         </div>
-        
         <div className="jz-player-area-modern">
-          <div className="player-container">
-            {!playerReady && currentTrack && currentTrack.source === 'youtube' && (
-              <div className="loading-indicator text-center py-3">
-                <p>Chargement du lecteur YouTube...</p>
-              </div>
-            )}
-            <Player 
-              currentTrack={currentTrack}
-              isPlaying={isPlaying}
-              onPlayPause={handlePlayPause}
-              onNext={handleNext}
-              onPrevious={handlePrevious}
-              onVoteUp={() => currentTrack && handleVoteUp(currentTrack.id)}
-              onVoteDown={() => currentTrack && handleVoteDown(currentTrack.id)}
-              onReady={handlePlayerReady}
-              onStateChange={handlePlayerStateChange}
-              onProgress={handlePlayerProgress}
-              progress={playerProgress}
-            />
-          </div>
+          
+        <div className="jz-player-area-modern">
+  <div className="player-container text-center">
+
+    {/* Chargement */}
+    {!playerReady && currentTrack && currentTrack.source === 'youtube' && (
+      <div className="loading-indicator py-3">
+        <p>Chargement du lecteur YouTube...</p>
+        <div className="bars">
+          <span className="bar bar1"></span>
+          <span className="bar bar2"></span>
+          <span className="bar bar3"></span>
+          <span className="bar bar4"></span>
+          <span className="bar bar5"></span>
         </div>
+      </div>
+    )}
+
+    {/* Couverture ou Animation pendant lecture */}
+    {playerReady && currentTrack && currentTrack.source === 'youtube' && (
+      <div className="cover-or-animation my-4">
+        {isPlaying ? (
+          <div className="bars big">
+            <span className="bar bar1"></span>
+            <span className="bar bar2"></span>
+            <span className="bar bar3"></span>
+            <span className="bar bar4"></span>
+            <span className="bar bar5"></span>
+          </div>
+        ) : (
+          currentTrack.coverUrl
+        )}
+      </div>
+    )}
+
+    {/* Player */}
+    <Player 
+      currentTrack={currentTrack}
+      isPlaying={isPlaying}
+      onPlayPause={handlePlayPause}
+      onNext={handleNext}
+      onPrevious={handlePrevious}
+      onVoteUp={() => currentTrack && handleVoteUp(currentTrack.id)}
+      onVoteDown={() => currentTrack && handleVoteDown(currentTrack.id)}
+      onReady={handlePlayerReady}
+      onStateChange={handlePlayerStateChange}
+      onProgress={handlePlayerProgress}
+      progress={playerProgress}
+    />
+  </div>
+</div>
+
+</div>
+
         
         <div className="jz-users-chat-modern">
           {/* Section de musiques locales */}
