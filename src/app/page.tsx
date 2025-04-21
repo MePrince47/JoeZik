@@ -8,11 +8,14 @@ import UsersChat from '@/components/realtime/UsersChat';
 import AddTrackForm from '@/components/playlist/AddTrackForm';
 import AuthForm from '@/components/auth/AuthForm';
 import LocalMusicSection from '@/components/playlist/LocalMusicSection';
+
+import 'bootstrap/dist/css/bootstrap.min.css';
 // Types
 import { UserProfile } from '@/types/user';
 import { Track } from '@/lib/playlist/trackService';
 // Styles
 import '@/styles/custom/home.scss';
+import { FaMusic } from 'react-icons/fa';
 
 // Adaptateur de stockage
 import { 
@@ -93,7 +96,7 @@ export default function Home() {
   const [isAddingTrack, setIsAddingTrack] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [sortCriteria, setSortCriteria] = useState<'votes' | 'date'>('votes');
+  const [sortCriteria, setSortCriteria] = useState<'votes' | 'date'>('date');
   
   // Services
   const [authService, setAuthService] = useState<any>(null);
@@ -528,17 +531,17 @@ export default function Home() {
               <div className="btn-group btn-group-sm" role="group" aria-label="Tri des pistes">
                 <button 
                   type="button" 
-                  className={`btn ${sortCriteria === 'votes' ? 'btn-primary' : 'btn-outline-primary'}`}
-                  onClick={() => setSortCriteria('votes')}
-                >
-                  Par likes
-                </button>
-                <button 
-                  type="button" 
                   className={`btn ${sortCriteria === 'date' ? 'btn-primary' : 'btn-outline-primary'}`}
                   onClick={() => setSortCriteria('date')}
                 >
                   Plus récent
+                </button>
+                <button 
+                  type="button" 
+                  className={`btn ${sortCriteria === 'votes' ? 'btn-primary' : 'btn-outline-primary'}`}
+                  onClick={() => setSortCriteria('votes')}
+                >
+                  Par likes
                 </button>
               </div>
             </div>
@@ -596,9 +599,7 @@ export default function Home() {
             <span className="bar bar4"></span>
             <span className="bar bar5"></span>
           </div>
-        ) : (
-          currentTrack.coverUrl
-        )}
+        ) :null }
       </div>
     )}
 
@@ -622,22 +623,27 @@ export default function Home() {
 </div>
 
         
-        <div className="jz-users-chat-modern">
-          {/* Section de musiques locales */}
-          <div className="local-music-section-container mb-4">
-            <LocalMusicSection 
-              tracks={tracks}
-              currentUser={currentUser}
-              onDeleteTrack={handleDeleteTrack}
-            />
-          </div>
-          
-          {/* Chat utilisateurs */}
-          <UsersChat 
-            currentUser={currentUser}
-            onlineUsers={onlineUsers}
-          />
-        </div>
+<div className="jz-users-chat-modern">
+  {/* Section de musiques locales */}
+  <div className="local-music-section-container mb-4">
+    <div className="flex justify-center items-center h-40">
+    <FaMusic 
+        className="text-purple-400/90" 
+        style={{ 
+          fontSize: '140px',
+          filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1))'
+        }} 
+      />
+    </div>
+  </div>
+
+  {/* Chat utilisateurs */}
+  <UsersChat 
+    currentUser={currentUser}
+    onlineUsers={onlineUsers}
+  />
+</div>
+
       </div>
       
       {/* Modal de connexion/inscription */}
