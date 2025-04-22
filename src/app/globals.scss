@@ -1,13 +1,6 @@
 // Import Bootstrap
-@use 'bootstrap/scss/bootstrap' as *;
 
-
-
-// Import custom styles
-// Suppression de l'import circulaire
-@use '../styles/custom/local-music.scss';
-@use '../styles/custom/apple-music-theme.scss';
-
+@use "bootstrap/scss/bootstrap" as *;
 
 // JoeZik Custom Theme Variables
 :root {
@@ -213,3 +206,8 @@ a {
 }
 
 
+
+// Import custom styles
+// Suppression de l'import circulaire
+@import '../styles/custom/local-music.scss';
+@import '../styles/custom/apple-music-theme.scss';

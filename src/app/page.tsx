@@ -1,14 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Header from '@/components/ui/Header';
 import Player from '@/components/player/Player';
 import TrackQueue from '@/components/playlist/TrackQueue';
 import UsersChat from '@/components/realtime/UsersChat';
 import AddTrackForm from '@/components/playlist/AddTrackForm';
 import AuthForm from '@/components/auth/AuthForm';
-import LocalMusicSection from '@/components/playlist/LocalMusicSection';
-
 import 'bootstrap/dist/css/bootstrap.min.css';
 // Types
 import { UserProfile } from '@/types/user';
@@ -121,10 +119,13 @@ export default function Home() {
     loadServices();
   }, []);
 
-  // Fonction pour charger les pistes
-  const loadTracks = async () => {
-    if (!trackService) return;
-    
+  
+  const loadTracks = useCallback(async (): Promise<void> => {
+    if (!trackService) {
+      console.warn('TrackService non initialisé');
+      return;
+    }
+  
     try {
       // Charger les pistes de la playlist par défaut avec le critère de tri
       const playlistTracks = await trackService.getPlaylistTracks(DEFAULT_PLAYLIST_ID, sortCriteria);
@@ -135,9 +136,12 @@ export default function Home() {
         setCurrentTrackId(playlistTracks[0].id);
       }
     } catch (error) {
-      console.error('Erreur lors du chargement des pistes:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      console.error('Erreur lors du chargement des pistes:', errorMessage);
+      // Vous pourriez aussi mettre à jour un state d'erreur ici si nécessaire
+      // setError(errorMessage);
     }
-  };
+  }, [trackService, sortCriteria, currentTrackId]);
 
   // Charger l'utilisateur actuel et les pistes au chargement de la page
   useEffect(() => {
@@ -166,14 +170,14 @@ export default function Home() {
     };
     
     loadUserData();
-  }, [authService, trackService]);
+  }, [loadTracks,authService, trackService]);
   
   // Effet pour actualiser les pistes lorsque le critère de tri change
   useEffect(() => {
     if (trackService) {
       loadTracks();
     }
-  }, [sortCriteria, trackService]);
+  }, [loadTracks,sortCriteria, trackService]);
   
   // Effet pour actualiser périodiquement les pistes (polling)
   useEffect(() => {
@@ -186,7 +190,7 @@ export default function Home() {
     
     // Nettoyer l'intervalle lorsque le composant est démonté
     return () => clearInterval(interval);
-  }, [trackService, sortCriteria]);
+  }, [loadTracks,trackService, sortCriteria]);
 
   // Get current track
   const currentTrack = tracks.find(track => track.id === currentTrackId) || null;
@@ -196,6 +200,7 @@ export default function Home() {
     if (playerState === 'ended') {
       handleNext();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playerState]);
 
   // Handlers
