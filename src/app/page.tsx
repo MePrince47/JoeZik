@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/ui/Header';
 import Player from '@/components/player/Player';
 import TrackQueue from '@/components/playlist/TrackQueue';
@@ -9,7 +9,7 @@ import AddTrackForm from '@/components/playlist/AddTrackForm';
 import AuthForm from '@/components/auth/AuthForm';
 import LocalMusicSection from '@/components/playlist/LocalMusicSection';
 
-use 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 // Types
 import { UserProfile } from '@/types/user';
 import { Track } from '@/lib/playlist/trackService';
