@@ -7,7 +7,6 @@ import TrackQueue from '@/components/playlist/TrackQueue';
 import UsersChat from '@/components/realtime/UsersChat';
 import AddTrackForm from '@/components/playlist/AddTrackForm';
 import AuthForm from '@/components/auth/AuthForm';
-import LocalMusicSection from '@/components/playlist/LocalMusicSection';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 // Types
